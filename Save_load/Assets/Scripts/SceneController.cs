@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
+using System.Runtime.Serialization.Formatters.Binary;
+using System;
+using System.IO;
 public class SceneController : MonoBehaviour {
 
     public static SceneController sceneControl;
 
     public float health;
     public float experience;
+    public int scene;
 
     private void Awake() {
         if(sceneControl == null) {
@@ -43,6 +46,39 @@ public class SceneController : MonoBehaviour {
         style.fontSize = 56;
         GUI.Label(new Rect(10, 10, 180, 80), "Active scene index : "  + SceneManager.GetActiveScene().buildIndex, style);
     }
-   
+    public void SaveGame()
+    {
+        
+
+        FileStream file = File.Open(Application.persistentDataPath + "/gameInfoo.dat", FileMode.Create);
+        DataScene playerDataa = new DataScene();
+        BinaryFormatter bf = new BinaryFormatter();
+        //   playerDataa.scenes = scene;
+        playerDataa.scenes = SceneManager.GetActiveScene().buildIndex;
+        bf.Serialize(file, playerDataa);
+        file.Close();
+    }
+    public void LoadGame()
+    {
+        BinaryFormatter bf = new BinaryFormatter();
+        if (!File.Exists(Application.persistentDataPath + "/gameInfoo.dat"))
+        {
+            throw new Exception("Game file not existing");
+        }
+        FileStream file = File.Open(Application.persistentDataPath + "/gameInfoo.dat", FileMode.Open);
+        DataScene playerDataa = (DataScene)bf.Deserialize(file);
+       
+
+      // scene = playerDataa.scenes;
+        SceneManager.LoadScene(playerDataa.scenes);
+      //  file.Close();
+    }
+
+
+}
+[Serializable]
+class DataScene
+{
+    public int scenes;
 
 }
